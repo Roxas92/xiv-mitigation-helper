@@ -1,7 +1,37 @@
-export type MitigationSkill = {
-	id: number;
+export enum MitigationSkill {
+	WHISPERING_DAWN = 'WHISPERING_DAWN',
+	FEY_ILLUMINATION = 'FEY_ILLUMINATION',
+	SACRED_SOIL = 'SACRED_SOIL',
+	SUMMON_SERAPH = 'SUMMON_SERAPH',
+	EXPEDIENT = 'EXPEDIENT',
+	PHYSIS = 'PHYSIS',
+	SOTERIA = 'SOTERIA',
+	KERACHOLE = 'KERACHOLE',
+	IXOCHOLE = 'IXOCHOLE',
+	ZOE = 'ZOE',
+	TAUROCHOLE = 'TAUROCHOLE',
+	HAIMA = 'HAIMA',
+	HOLOS = 'HOLOS',
+	PANHAIMA = 'PANHAIMA',
+	KRASIS = 'KRASIS',
+	PNEUMA = 'PNEUMA',
+	ESSENTIAL_DIGNITY = 'ESSENTIAL_DIGNITY',
+	COLLECTIVE_UNCONSCIOUS = 'COLLECTIVE_UNCONSCIOUS',
+	CELESTIAL_OPPOSITION = 'CELESTIAL_OPPOSITION',
+	EARTHLY_STAR = 'EARTHLY_STAR',
+	CELESTIAL_INTERSECTION = 'CELESTIAL_INTERSECTION',
+	HOROSCOPE = 'HOROSCOPE',
+	NEUTRAL_SECT = 'NEUTRAL_SECT',
+	EXALTATION = 'EXALTATION',
+	MACROCOSMOS = 'MACROCOSMOS',
+}
+
+export type MitigationSkillDescription = {
+	id: MitigationSkill;
 	name: string;
-	cooldownInMS: number;
+	duration: number;
+	cooldown: number;
+	icon?: string;
 };
 
-export type MitigationSkillOnCooldown = MitigationSkill & { remainingCooldownInMS: number };
+export type MitigationSkillOnCooldown = MitigationSkillDescription & { remainingCooldownInMS: number };

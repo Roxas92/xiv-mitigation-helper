@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { mitigationSkills } from '../data/mitigationSkills';
 import { getClosestEntriesByValue } from '../utilities/helpers';
-import { MitigationSkill } from './MitigationSkill';
+import { MitigationSkill, MitigationSkillDescription } from './MitigationSkill';
 import { RaidGroupMember } from './RaidGroup';
 
 export interface MitigationStrategyOptions {
@@ -11,7 +11,7 @@ export interface MitigationStrategyOptions {
 	mitigationTimeline?: MitigationTimelineEntry[];
 }
 
-export type MitigationTimelineEntry = { timestamp: number, id: string, mitigationSkillId: number, raidGroupMemberId: string };
+export type MitigationTimelineEntry = { timestamp: number, id: string, mitigationSkillId: MitigationSkill, raidGroupMemberId: string };
 
 export type MitigationTimelineSkillGroup = MitigationTimelineEntry[];
 
@@ -86,7 +86,7 @@ export class MitigationStrategy {
                 
 				const previousExecution = array[index - 1];
 				const mitigationSkill = mitigationSkills[entry.mitigationSkillId];
-				const cooldownInSeconds = mitigationSkill.cooldownInMS / 1000;
+				const cooldownInSeconds = mitigationSkill.cooldown;
 				const skillReadyTime = previousExecution.timestamp + cooldownInSeconds;
 
 				return entry.timestamp > skillReadyTime;
@@ -98,7 +98,7 @@ export class MitigationStrategy {
 		});
 	}
 
-	addMitigation(skill: MitigationSkill, member: RaidGroupMember, timestamp: number): MitigationStrategy {
+	addMitigation(skill: MitigationSkillDescription, member: RaidGroupMember, timestamp: number): MitigationStrategy {
 		const id = uuidv4();
 
 		const mitigation: MitigationTimelineEntry = { 
@@ -126,14 +126,31 @@ export class MitigationStrategy {
 
 		return this;
 	}
+
+	updateMitigationTimestamp(id: string, timestamp: number): MitigationStrategy {
+		const index = this.timeline.findIndex(item => item.id === id);
+
+		this.timeline[index].timestamp = timestamp;
+
+		return this;
+	}
 }
 
-export const getAllSkillExecutions = (timeline: MitigationTimelineEntry[], skillId: number): MitigationTimelineEntry[] => {
+export const getAllSkillExecutions = (timeline: MitigationTimelineEntry[], skillId: MitigationSkill): MitigationTimelineEntry[] => {
 	return timeline.filter(timelineEntry => timelineEntry.mitigationSkillId === skillId);
 };
 
-export const isSkillAvailable = (skill: MitigationSkill, time: number, timeline: MitigationTimelineEntry[]): boolean => {
-	const cooldownInSeconds = skill.cooldownInMS / 1000;
+export const getAllSkillExecutionsForMember = (timeline: MitigationTimelineEntry[], memberId: string): MitigationTimelineEntry[] => {
+	return timeline.filter(timelineEntry => timelineEntry.raidGroupMemberId === memberId);
+};
+
+export const getSkillExectionsForMember = (timeline: MitigationTimelineEntry[], skillId: MitigationSkill, memberId: string): MitigationTimelineEntry[] => {
+	const filteredEntries = getAllSkillExecutionsForMember(timeline, memberId);
+	return filteredEntries.filter(timelineEntry => timelineEntry.mitigationSkillId === skillId);
+};
+
+export const isSkillAvailable = (skill: MitigationSkillDescription, time: number, timeline: MitigationTimelineEntry[]): boolean => {
+	const cooldownInSeconds = skill.cooldown;
 	const allExections = getAllSkillExecutions(timeline, skill.id);
 
 	if (allExections.length < 1) {

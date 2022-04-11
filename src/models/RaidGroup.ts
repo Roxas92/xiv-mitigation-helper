@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { JobClass, jobClasses, JobClassType } from "./JobClass";
-import { MitigationSkill } from './MitigationSkill';
+import { MitigationSkillDescription } from './MitigationSkill';
 import type { Ref } from 'vue';
 import { ref } from 'vue';
 
@@ -29,7 +29,7 @@ export interface RaidGroup {
 	errors: Ref<string[]>;
 	addNewGroupMember(jobClass: JobClass, id?: string): void;
 	removeGroupMemberByID(groupMemberId: string): void;
-	getAvailableMitigation(): Record<string, MitigationSkill[]>;
+	getAvailableMitigation(): Record<string, MitigationSkillDescription[]>;
 }
 
 export const createRaidGroup = (id?: string, members?: RaidGroupMember[]): RaidGroup => {
@@ -81,8 +81,8 @@ export const createRaidGroup = (id?: string, members?: RaidGroupMember[]): RaidG
 		validateGroupMembers();
 	};
 
-	const getAvailableMitigation = (): Record<string, MitigationSkill[]> => {
-		const availableMitigation: Record<string, MitigationSkill[]> = {};
+	const getAvailableMitigation = (): Record<string, MitigationSkillDescription[]> => {
+		const availableMitigation: Record<string, MitigationSkillDescription[]> = {};
 
 		groupMembers.value.forEach(member => {
 			const jobClass = jobClasses[member.jobClass];

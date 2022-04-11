@@ -13,10 +13,6 @@ export const getClosestEntriesByValue = <P extends string, T extends { [U in P]:
 	return closestEntries;
 };
 
-export const timeToPixel = (time: number, ratio: number): number => {
-	return time * ratio;
-};
-
-export const pixelToTime = (pixel: number, ratio: number): number => {
-	return pixel / ratio;
+export const secondsToMMSS = (seconds: number): string => {
+	return new Date(seconds * 1000).toISOString().substr(14, 5);
 };

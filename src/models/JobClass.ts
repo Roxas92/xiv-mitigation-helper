@@ -1,8 +1,10 @@
 import { mitigationSkills } from "../data/mitigationSkills";
-import { MitigationSkill } from "./MitigationSkill";
+import { MitigationSkillDescription } from "./MitigationSkill";
 
 export enum JobClass {
 	SCHOLAR = "SCHOLAR",
+	SAGE = "SAGE",
+	ASTROLOGIAN = "ASTROLOGIAN",
 	WARRIOR = "WARRIOR",
 	BARD = "BARD",
 }
@@ -23,7 +25,7 @@ export type JobClassDescription = {
 	name: string;
 	type: JobClassType,
 	subType?: JobClassSubType,
-	mitigation: MitigationSkill[];
+	mitigation: MitigationSkillDescription[];
 };
 
 export const jobClasses: Record<JobClass, JobClassDescription> = {
@@ -31,15 +33,48 @@ export const jobClasses: Record<JobClass, JobClassDescription> = {
 		name: 'Scholar',
 		type: JobClassType.HEALER,
 		mitigation: [
-			mitigationSkills[1],
-			mitigationSkills[4],
+			mitigationSkills.WHISPERING_DAWN,
+			mitigationSkills.EXPEDIENT,
+			mitigationSkills.FEY_ILLUMINATION,
+			mitigationSkills.SACRED_SOIL,
+			mitigationSkills.SUMMON_SERAPH,
+		],
+	},
+	SAGE: {
+		name: 'Sage',
+		type: JobClassType.HEALER,
+		mitigation: [
+			mitigationSkills.HAIMA,
+			mitigationSkills.HOLOS,
+			mitigationSkills.IXOCHOLE,
+			mitigationSkills.KERACHOLE,
+			mitigationSkills.KRASIS,
+			mitigationSkills.PANHAIMA,
+			mitigationSkills.PHYSIS,
+			mitigationSkills.PNEUMA,
+			mitigationSkills.SOTERIA,
+			mitigationSkills.TAUROCHOLE,
+		],
+	},
+	ASTROLOGIAN: {
+		name: 'Astrologian',
+		type: JobClassType.HEALER,
+		mitigation: [
+			mitigationSkills.CELESTIAL_INTERSECTION,
+			mitigationSkills.CELESTIAL_OPPOSITION,
+			mitigationSkills.COLLECTIVE_UNCONSCIOUS,
+			mitigationSkills.EARTHLY_STAR,
+			mitigationSkills.ESSENTIAL_DIGNITY,
+			mitigationSkills.EXALTATION,
+			mitigationSkills.HOROSCOPE,
+			mitigationSkills.MACROCOSMOS,
+			mitigationSkills.NEUTRAL_SECT,
 		],
 	},
 	WARRIOR: {
 		name: 'Warrior',
 		type: JobClassType.TANK,
 		mitigation: [
-			mitigationSkills[2],
 		],
 	},
 	BARD: {
@@ -47,7 +82,6 @@ export const jobClasses: Record<JobClass, JobClassDescription> = {
 		type: JobClassType.DPS,
 		subType: JobClassSubType.PHYSICAL_RANGE,
 		mitigation: [
-			mitigationSkills[3],
 		],
 	}
 };
