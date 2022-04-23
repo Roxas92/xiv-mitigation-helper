@@ -42,7 +42,7 @@
 import { computed, PropType, ref } from 'vue';
 import { useTimePixelConverter } from '../composables/useTimePixelConverter';
 import { MitigationSkillDescription } from '../models/MitigationSkill';
-import { isSkillAvailable, MitigationTimelineEntry } from '../models/MitigationStrategy';
+import { isSkillAvailable, StrategyTimelineEntry } from '../models/EncounterStrategy';
 import TimelineItem from './TimelineItem.vue';
 
 const props = defineProps({
@@ -94,7 +94,7 @@ const potentialUseTiming = ref(0);
 const isTimelineMouseActive = ref(false);
 const isDragging = ref(false);
 
-const fakeTimeline = computed<MitigationTimelineEntry[]>(() => {
+const fakeTimeline = computed<StrategyTimelineEntry[]>(() => {
 	return props.uses.map(timestamp => ({ id: '', mitigationSkillId: props.skill.id, raidGroupMemberId: '', timestamp }));
 });
 

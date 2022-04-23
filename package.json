@@ -7,12 +7,16 @@
     "serve": "vite preview"
   },
   "dependencies": {
+    "@headlessui/vue": "^1.5.0",
+    "@heroicons/vue": "^1.0.6",
     "@interactjs/interact": "^1.10.11",
+    "@vueuse/core": "^8.2.5",
     "interactjs": "^1.10.11",
     "uuid": "^8.3.2",
     "vue": "^3.2.6"
   },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.0",
     "@types/uuid": "^8.3.1",
     "@typescript-eslint/eslint-plugin": "^4.30.0",
     "@typescript-eslint/parser": "^4.30.0",

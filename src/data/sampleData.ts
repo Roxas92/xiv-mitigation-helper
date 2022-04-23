@@ -1,39 +1,42 @@
-import { TimelineEntry } from "../models/Encounter";
+import { BossAbility, EncounterTimelineEntry } from "../models/Encounter";
 
-export const sampleBossTimeline: TimelineEntry[] = [
+export const sampleBossAbilities: BossAbility[] = [
+	{
+		id: 'decollation',
+		name: 'Decollation',
+		type: 'tankbuster',
+	},
+	{
+		id: 'bloodrake',
+		name: 'Bloodrake',
+		type: 'raidwide',
+	}
+];
+
+export const sampleBossTimeline: EncounterTimelineEntry[] = [
 	{
 		id: '2a',
-		ability: {
-			name: 'Decollation'
-		},
+		abilityId: 'decollation',
 		timestamp: 14,
 	},
 	{
 		id: '2b',
-		ability: {
-			name: 'Bloodrake'
-		},
+		abilityId: 'bloodrake',
 		timestamp: 32,
 	},
 	{
 		id: '2c',
-		ability: {
-			name: 'Decollation'
-		},
+		abilityId: 'decollation',
 		timestamp: 72,
 	},
 	{
 		id: '5b',
-		ability: {
-			name: 'Bloodrake'
-		},
+		abilityId: 'bloodrake',
 		timestamp: 133,
 	},
 	{
 		id: '6b',
-		ability: {
-			name: 'Bloodrake'
-		},
+		abilityId: 'bloodrake',
 		timestamp: 250,
 	},
 ];

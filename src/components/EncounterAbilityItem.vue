@@ -6,12 +6,37 @@
 			'left': `${timeToPixel(computedTimestamp)}px`
 		}"
 	>
-		<div class="absolute w-[1px] bg-fuchsia-600 h-full bottom-8 pointer-events-none" />
+		<div
+			class="absolute w-[1px] bg-fuchsia-600 h-full bottom-8 pointer-events-none"
+			:class="{
+				'bg-sky-600': ability && ability.type === 'tankbuster',
+				'bg-amber-600': ability && ability.type === 'misc',
+			}"
+		/>
 		<div class="absolute bottom-0 transform -translate-x-1/2">
-			<div class="bg-fuchsia-900 border border-fuchsia-600 rounded-md px-2 py-1 text-fuchsia-200">
-				{{ entry.ability.name }}
+			<div
+				class="bg-fuchsia-900 border border-fuchsia-600 rounded-md px-2 py-1 text-fuchsia-200 whitespace-nowrap"
+				:class="{
+					'bg-sky-900 border-sky-600 text-sky-200': ability && ability.type === 'tankbuster',
+					'bg-amber-900 border-amber-600 text-amber-200': ability && ability.type === 'misc',
+				}"
+			>
+				<slot>
+					<template v-if="ability">
+						{{ ability.name }}
+					</template>
+					<template v-else>
+						Unknown ability
+					</template>
+				</slot>
 			</div>
-			<div class="text-center text-fuchsia-200 text-sm mt-2">
+			<div
+				class="text-center text-fuchsia-200 text-sm mt-2"
+				:class="{
+					'text-sky-200': ability && ability.type === 'tankbuster',
+					'text-amber-200': ability && ability.type === 'misc',
+				}"
+			>
 				{{ secondsToMMSS(computedTimestamp) }}
 			</div>
 		</div>
@@ -21,16 +46,24 @@
 <script lang="ts" setup>
 import { InteractEvent } from '@interactjs/types';
 import interact from 'interactjs';
-import { onMounted, PropType, ref, watch } from 'vue';
+import { computed, onMounted, PropType, ref, watch } from 'vue';
 import { useTimePixelConverter } from '../composables/useTimePixelConverter';
-import { TimelineEntry } from '../models/Encounter';
+import { Encounter, getAbilityById, EncounterTimelineEntry } from '../models/Encounter';
 import { secondsToMMSS } from '../utilities/helpers';
 
 const props = defineProps({
 	entry: {
-		type: Object as PropType<TimelineEntry>,
+		type: Object as PropType<EncounterTimelineEntry>,
+		required: true,
+	},
+	encounter: {
+		type: Object as PropType<Encounter>,
 		required: true,
 	}
+});
+
+const ability = computed(() => {
+	return getAbilityById(props.encounter, props.entry.abilityId);
 });
 
 const computedTimestamp = ref(props.entry.timestamp);

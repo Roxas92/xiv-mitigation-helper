@@ -8,16 +8,6 @@
 		}"
 	> 
 		<div
-			class="absolute w-12 h-12 top-0 z-10 rounded-xl overflow-hidden"
-			:style="{
-			}"
-		>
-			<img
-				v-if="skill.icon"
-				:src="skill.icon"
-			>
-		</div>
-		<div
 			class="absolute h-12 transform cooldown"
 			:style="{
 				'width': `${timeToPixel(skill.cooldown)}px`
@@ -29,6 +19,16 @@
 				'width': `${timeToPixel(skill.duration)}px`
 			}"
 		/>
+		<div
+			class="absolute w-12 h-12 top-0 rounded-xl overflow-hidden"
+			:style="{
+			}"
+		>
+			<img
+				v-if="skill.icon"
+				:src="skill.icon"
+			>
+		</div>
 	</div>
 </template>
 

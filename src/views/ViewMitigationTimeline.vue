@@ -50,42 +50,105 @@
 		</div>
 		<EncounterAbilityRow v-model:encounter="encounter" />
 	</div>
+	<div class="pb-28 px-8">
+		<div class="text-center text-2xl text-gray-50 py-8">
+			Boss Ability Manager
+		</div>
+		<ul
+			role="list"
+			class="grid grid-cols-3 gap-4"
+		>
+			<li
+				v-for="ability in encounter.abilities"
+				:key="ability.id"
+				class="bg-gray-800 shadow overflow-hidden rounded-md px-6 py-4"
+			>
+				<div class="grid grid-cols-1 sm:grid-cols-6">
+					<div class="sm:col-span-3 flex items-center">
+						<label
+							for="name"
+							class="block text-sm font-medium text-gray-200 mr-4"
+						>
+							Name
+						</label>
+						<div class="mt-1">
+							<input
+								id="name"
+								v-model="ability.name"
+								type="text"
+								name="name"
+								autocomplete="address-level2"
+								class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-600 bg-gray-700 rounded-md text-white"
+							>
+						</div>
+					</div>
+
+					<div class="sm:col-span-3 flex items-center">
+						<label
+							for="country"
+							class="block text-sm font-medium text-gray-200 mr-4"
+						>
+							Type
+						</label>
+						<div class="mt-1 sm:col-span-2">
+							<select
+								id="country"
+								v-model="ability.type"
+								name="country"
+								autocomplete="country-name"
+								class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-600 bg-gray-700 rounded-md text-white"
+							>
+								<option>tankbuster</option>
+								<option>raidwide</option>
+								<option>misc</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</li>
+		</ul>
+	</div>
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { JobClass } from '../models/JobClass';
 import { createRaidGroup } from '../models/RaidGroup';
 import TimelineRow from '../components/TimelineRow.vue';
-import { MitigationStrategy, getSkillExectionsForMember } from '../models/MitigationStrategy';
 import { MitigationSkill, MitigationSkillDescription } from '../models/MitigationSkill';
 import { useTimePixelConverter } from '../composables/useTimePixelConverter';
-import { sampleBossTimeline } from '../data/sampleData';
+import { sampleBossAbilities, sampleBossTimeline } from '../data/sampleData';
 import { secondsToMMSS } from '../utilities/helpers';
 import { createEncounter, getDuration } from '../models/Encounter';
 import EncounterAbilityRow from '../components/EncounterAbilityRow.vue';
+import * as EncounterStrategy from '../models/EncounterStrategy';
 
 const group = createRaidGroup('pepebringers', [
 	{ id: 'Roxas', 'jobClass': JobClass.ASTROLOGIAN },
 	{ id: 'Azena', 'jobClass': JobClass.SAGE }
 ]);
 
-const mitigationStrategy = reactive(new MitigationStrategy({
+const mitigationStrategy = reactive(EncounterStrategy.createEncounterStrategy({
 	raidGroupId: group.id,
 	bossFightId: 'DSR',
-	mitigationTimeline: []
+	timeline: []
 }));
 
-const encounter = reactive(createEncounter({
+const encounter = ref(createEncounter({
 	timeline: sampleBossTimeline,
+	abilities: sampleBossAbilities,
 }));
+
+watch(encounter, (newEncounter) => {
+	console.log('encounter update: ', newEncounter);
+});
 
 const SECOND_UNIT = 15;
 
 const timeLabels = computed(() => {
 	const labels = [];
 
-	const units = Math.floor(getDuration(encounter) / SECOND_UNIT);
+	const units = Math.floor(getDuration(encounter.value) / SECOND_UNIT);
 
 	let remainingUnits = units;
 
@@ -102,7 +165,7 @@ const timeLabels = computed(() => {
 });
 
 const getAllSkillExecutions = (skillId: MitigationSkill, memberId: string) => {
-	return getSkillExectionsForMember(mitigationStrategy.timeline, skillId, memberId);
+	return EncounterStrategy.getSkillExectionsForMember(mitigationStrategy.timeline, skillId, memberId);
 };
 
 const groupsMitigation = computed(() => {
@@ -113,7 +176,7 @@ const onUpdateUses = (skillId: MitigationSkill, memberId: string, uses: number[]
 	const allExecutionsIds = getAllSkillExecutions(skillId, memberId).map(entry => entry.id);
 
 	allExecutionsIds.forEach((id, index) => {
-		mitigationStrategy.updateMitigationTimestamp(id, uses[index]);
+		EncounterStrategy.updateMitigationTimestamp(mitigationStrategy, id, uses[index]);
 	});
 };
 
@@ -124,7 +187,7 @@ const addNewExecution = (skill: MitigationSkillDescription, memberId: string, ti
 		return;
 	}
 
-	mitigationStrategy.addMitigation(skill, member, timestamp);
+	EncounterStrategy.addMitigation(mitigationStrategy, skill, member, timestamp);
 };
 
 const removeExecution = (skill: MitigationSkillDescription, memberId: string, timestamp: number) => {
@@ -134,7 +197,7 @@ const removeExecution = (skill: MitigationSkillDescription, memberId: string, ti
 		return;
 	}
 
-	mitigationStrategy.removeMitigation(mitigation.id);
+	EncounterStrategy.removeMitigation(mitigationStrategy, mitigation.id);
 };
 
 const { timeToPixel, pixelSecondRatio } = useTimePixelConverter();
@@ -142,6 +205,10 @@ const { timeToPixel, pixelSecondRatio } = useTimePixelConverter();
 const scrollContainer = ref<HTMLElement>();
 
 const onWheel = (event: WheelEvent) => {
+	if (!event.shiftKey) {
+		return;
+	}
+
 	event.preventDefault();
 
 	if (!scrollContainer.value) {
