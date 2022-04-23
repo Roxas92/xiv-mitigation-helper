@@ -5,7 +5,7 @@
 				ref="timelineRow"
 				class="absolute w-full h-16 bottom-0"
 				:style="{
-					'minWidth': `${timeToPixel(getDuration(encounter) + 10)}px`
+					'minWidth': `${timeToPixel(getDuration(encounter.timeline) + 10)}px`
 				}"
 				@click="openNewAbilityOverlay"
 				@mousemove="onTimelineMouseMove"
@@ -71,9 +71,11 @@
 <script lang="ts" setup>
 import { PropType, computed, ref } from 'vue';
 import { useTimePixelConverter } from '../composables/useTimePixelConverter';
-import { Encounter, EncounterTimelineEntry, updateTimelineEntry, removeAbilityFromTimelineById, getDuration, BossAbility, addAbilityToTimeline, createBossAbility } from '../models/Encounter';
+import { Encounter, EncounterTimelineEntry, addAbilityToTimeline } from '../models/Encounter';
+import { getDuration, updateTimelineEntry, removeTimelineEntryById } from '../models/Timeline';
 import EncounterAbilityItem from './EncounterAbilityItem.vue';
 import { onClickOutside } from '@vueuse/core';
+import { createEncounterAbility, EncounterAbility, maybeAddAbility } from '../models/EncounterAbility';
 
 const props = defineProps({
 	encounter: {
@@ -87,15 +89,13 @@ const emits = defineEmits<{
 }>();
 
 const updateTimelineEntryForEncounter = (entry: EncounterTimelineEntry, timestamp: number) => {
-	const newEncounter = { ...props.encounter };
-	updateTimelineEntry(newEncounter, entry.id,  timestamp);
-	emits('update:encounter', newEncounter);
+	const newTimeline = updateTimelineEntry(props.encounter.timeline, entry.id, timestamp);
+	emits('update:encounter', { ...props.encounter, timeline: newTimeline });
 };
 
 const removeTimelineEntryForEncounter = (entry: EncounterTimelineEntry) => {
-	const newEncounter = { ...props.encounter };
-	removeAbilityFromTimelineById(newEncounter, entry.id);
-	emits('update:encounter', newEncounter);
+	const newTimeline = removeTimelineEntryById(props.encounter.timeline, entry.id);
+	emits('update:encounter', { ...props.encounter, timeline: newTimeline });
 };
 
 const { timeToPixel, pixelToTime } = useTimePixelConverter();
@@ -179,10 +179,10 @@ onClickOutside(newAbilityOverlay, () => {
 	isNewAbilityOverlayVisible.value = false;
 }, { capture: false });
 
-const addAbility = (ability: BossAbility, timestamp: number) => {
-	const newEncounter = { ...props.encounter };
-	addAbilityToTimeline(newEncounter, ability, timestamp);
-	emits('update:encounter', newEncounter);
+const addAbility = (ability: EncounterAbility, timestamp: number) => {
+	const newTimeline = addAbilityToTimeline(props.encounter.timeline, ability, timestamp);
+	const newAbilities = maybeAddAbility(props.encounter.abilities, ability);
+	emits('update:encounter', { ...props.encounter, timeline: newTimeline, abilities: newAbilities });
 	isNewAbilityOverlayVisible.value = false;
 };
 
@@ -191,10 +191,12 @@ const addAbilityWithCustomName = () => {
 		return;
 	}
 
-	const newEncounter = { ...props.encounter };
-	const ability = createBossAbility(newAbilityName.value);
-	addAbilityToTimeline(newEncounter, ability, potentialUseTiming.value);
-	emits('update:encounter', newEncounter);
+	const ability = createEncounterAbility(newAbilityName.value);
+	const newTimeline = addAbilityToTimeline(props.encounter.timeline, ability, potentialUseTiming.value);
+	const newAbilities = maybeAddAbility(props.encounter.abilities, ability);
+
+	emits('update:encounter', { ...props.encounter, timeline: newTimeline, abilities: newAbilities });
+
 	isNewAbilityOverlayVisible.value = false;
 	newAbilityName.value = '';
 };

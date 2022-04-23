@@ -48,7 +48,8 @@ import { InteractEvent } from '@interactjs/types';
 import interact from 'interactjs';
 import { computed, onMounted, PropType, ref, watch } from 'vue';
 import { useTimePixelConverter } from '../composables/useTimePixelConverter';
-import { Encounter, getAbilityById, EncounterTimelineEntry } from '../models/Encounter';
+import { Encounter, EncounterTimelineEntry } from '../models/Encounter';
+import { getAbilityById } from '../models/EncounterAbility';
 import { secondsToMMSS } from '../utilities/helpers';
 
 const props = defineProps({
@@ -63,7 +64,7 @@ const props = defineProps({
 });
 
 const ability = computed(() => {
-	return getAbilityById(props.encounter, props.entry.abilityId);
+	return getAbilityById(props.encounter.abilities, props.entry.abilityId);
 });
 
 const computedTimestamp = ref(props.entry.timestamp);
